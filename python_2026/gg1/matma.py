@@ -1,7 +1,13 @@
 import math
+from datetime import datetime
 
-from python_2026.gg1.utils import ts, duration
 
+def ts() -> float:
+    return datetime.now().timestamp()
+
+
+def duration(start_ts) -> float:
+    return ts() - start_ts
 
 def get_sin(degree: float) -> float:
     return math.sin(degree * math.pi / 180)

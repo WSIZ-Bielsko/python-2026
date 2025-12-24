@@ -1,3 +1,6 @@
+from collections import Counter
+
+
 def verify_sensors(values: list[int]) -> str | int:
     """
     Returns "sensor readings correct" if all values are equal, or
@@ -6,7 +9,15 @@ def verify_sensors(values: list[int]) -> str | int:
 
     len(values)==3
     """
-    # todo
+    if len(set(values)) == 1:
+        return "sensor readings correct"
+    if len(values) == 0 or len(set(values)) == 3:
+        return "general error"
+    c = Counter(values)
+    for k, v in c.items():
+        if v == 1:
+            return values.index(k)
+
 
 
 def test_all_values_equal_returns_correct_message():

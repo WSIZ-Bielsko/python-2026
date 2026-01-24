@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime
@@ -15,6 +15,16 @@ app.add_middleware(
 )
 
 SUPPORT_FILE = "supporters.jsonl"
+ACCESS_LOG = "access.log"
+
+
+class ClientInfo(BaseModel):
+    timestamp: datetime
+    ip: str | None
+    user_agent: str | None
+    language: str | None
+    referer: str | None
+    x_forwarded_for: str | None
 
 
 # Pydantic models
@@ -39,7 +49,7 @@ def hello():
 
 
 @app.post('/support', response_model=Message)
-def support(payload: SupportRequest):
+def support(payload: SupportRequest, request: Request):
     record = Message(
         created=datetime.now(),
         nickname=payload.nickname,
@@ -48,6 +58,19 @@ def support(payload: SupportRequest):
 
     with open(SUPPORT_FILE, "a", encoding="utf-8") as f:
         f.write(record.model_dump_json() + "\n")
+
+    # Log client info
+    client_info = ClientInfo(
+        timestamp=datetime.now(),
+        ip=request.client.host if request.client else None,
+        user_agent=request.headers.get("user-agent"),
+        language=request.headers.get("accept-language"),
+        referer=request.headers.get("referer"),
+        x_forwarded_for=request.headers.get("x-forwarded-for")
+    )
+
+    with open(ACCESS_LOG, "a", encoding="utf-8") as f:
+        f.write(client_info.model_dump_json() + "\n")
 
     return record
 

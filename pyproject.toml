@@ -7,6 +7,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+faker = "^40.1.2"
+pydantic = "^2.12.5"
 
 
 [tool.poetry.group.dev.dependencies]
